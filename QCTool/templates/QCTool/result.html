@@ -17,34 +17,55 @@
     <div class="row panel">
         <h4>Errors:</h4>
         {% if errorList %}
-            <ul>
+            <table>
             {% load dict_extras %}
             {% for error in errorList %}
-                <li>
-                    <div class="large-2 column">Line: {{ error.0 }},</div>
-                    <div class="large-2 column">Offset: {{ error.1 }}</div>
-                    <div class="large-8 column">{{ errMsg|key:error.2 }}{% if error.3 %}{{ error.3 }}{% endif %}</div>
-                </li>
+                <tr>
+                    <td>Line: {{ error.0 }},</td>
+                    <td>Offset: {{ error.1 }}</td>
+                    <td>{{ errMsg|key:error.2 }}{% if error.3 %}{{ error.3 }}{% endif %}</td>
+                </tr>
             {% endfor %}
-            </ul>
+            </table>
         {% endif %}
     </div>
     <hr/>
     <div class="row panel">
         <h4>Alias Dict:</h4>
         {% if aliasDict %}
-            <ul>
-                <li>
-                    <div class="large-7 column">Alias Name</div>
-                    <div class="large-5 column">Duplicated Times</div>
-                </li>
+            <table>
+                <tr>
+                    <td>Alias Name</td>
+                    <td>Duplicated Times</td>
+                </tr>
             {% for alias, times in aliasDict.items %}
-                <li>
-                    <div class="large-7 column">{{ alias }}</div>
-                    <div class="large-5 column">{{ times }}</div>
-                </li>
+                <tr>
+                    <td>{{ alias }}</td>
+                    <td>{{ times }}</td>
+                </tr>
             {% endfor %}
-            </ul>
+            </table>
+        {% endif %}
+    </div>
+    <div class="row panel">
+        <h4>Alias Mapping:</h4>
+        {% if aliasList %}
+            <table>
+                <tr>
+                    <td>Alias Name</td>
+                    <td>Raw Link</td>
+                    <td>Conversion</td>
+                    <td>is Duplicated?</td>
+                </tr>
+            {% for aliasObj in aliasList %}
+                <tr>
+                    <td>{{ aliasObj.0 }}</td>
+                    <td>{{ aliasObj.1 }}</td>
+                    <td>{{ aliasObj.2 }}</td>
+                    <td>{{ aliasObj.3 }}</td>
+                </tr>
+            {% endfor %}
+            </table>
         {% endif %}
     </div>
 </body>

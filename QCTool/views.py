@@ -1,3 +1,6 @@
+#!/usr/bin/python2.7
+# -*- coding: utf-8 -*-
+
 from django.shortcuts import render, get_object_or_404
 from QCTool.models import QCHTMLParser
 from django.http import HttpResponse, HttpResponseRedirect

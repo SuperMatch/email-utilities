@@ -14,7 +14,7 @@ import re, codecs
 class QCHTMLParser(HTMLParser):
     def __init__(self, data):
         HTMLParser.__init__(self)
-        self.source = self.decode_html(data)
+        self.source = data
         self.errMsg = {
             #dictionary for errors. Output method will use the "key" to get the "value" to output the error.
             "invalidImage": "The dimension of the image is invalided.",
@@ -77,9 +77,6 @@ class QCHTMLParser(HTMLParser):
     #decode_html function is used for correct decode our html file
     #if the input is already unicode string, we don't have to use beautiful soup to decode the html
     #If we can easily decode the code to "utf-8", we don't need to use Beautiful Soup also.
-    def decode_html(self, html_string):
-        new_doc = UnicodeDammit.detwingle(html_string)
-        return new_doc.decode("utf-8")
 
     #change the signal
     def changeSignal(self, target, number):
