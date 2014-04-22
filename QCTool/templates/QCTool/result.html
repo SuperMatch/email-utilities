@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Campaign Result {% if cid %}for {{ cid }}{% endif %}</title>
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/foundation.min.css' %}" />
+</head>
+<body>
+    <div class="row">
+        <h4>Campaign ID: {% if cid %}{{ cid }}{% else %}Not found{% endif %}</h4>
+    </div>
+    <hr/>
+    <div class="row">
+        <h4>Subject: {% if cid %}{{ sline }}{% else %}Not found{% endif %}</h4>
+    </div>
+    <hr/>
+    <div class="row panel">
+        <h4>Errors:</h4>
+        {% if errorList %}
+            <ul>
+            {% load dict_extras %}
+            {% for error in errorList %}
+                <li>
+                    <div class="large-2 column">Line: {{ error.0 }},</div>
+                    <div class="large-2 column">Offset: {{ error.1 }}</div>
+                    <div class="large-8 column">{{ errMsg|key:error.2 }}{% if error.3 %}{{ error.3 }}{% endif %}</div>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+    <hr/>
+    <div class="row panel">
+        <h4>Alias Dict:</h4>
+        {% if aliasDict %}
+            <ul>
+                <li>
+                    <div class="large-7 column">Alias Name</div>
+                    <div class="large-5 column">Duplicated Times</div>
+                </li>
+            {% for alias, times in aliasDict.items %}
+                <li>
+                    <div class="large-7 column">{{ alias }}</div>
+                    <div class="large-5 column">{{ times }}</div>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</body>
+</html>

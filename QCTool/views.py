@@ -1,0 +1,18 @@
+from django.shortcuts import render, get_object_or_404
+from QCTool.models import QCHTMLParser
+from django.http import HttpResponse, HttpResponseRedirect
+from django.core.urlresolvers import reverse
+from django.views import generic
+from django.utils import timezone
+
+
+def index(request):
+    return render(request, 'QCTool/index.html')
+
+
+def result(request):
+    source = request.POST['source']
+    bot = QCHTMLParser(source)
+    bot.run()
+    result_obj = bot.getResult()
+    return render(request, 'QCTool/result.html', result_obj)

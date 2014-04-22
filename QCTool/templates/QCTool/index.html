@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QCTool</title>
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/foundation.min.css' %}" />
+</head>
+<body>
+    <div class="row"><h2 class="large-8 column">Input your code here</h2></div>
+    <div class="row">
+        <div class="large-8 column">
+            <form action="{% url 'QCTool:result' %}" method="post">
+                {% csrf_token %}
+                <p><textarea name="source" id="source" cols="100" rows="30"></textarea></p>
+                <input class="button" type="submit" value="Submit"/>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
