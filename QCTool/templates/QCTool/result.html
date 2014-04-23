@@ -21,9 +21,9 @@
             {% load dict_extras %}
             {% for error in errorList %}
                 <tr>
-                    <td>Line: {{ error.0 }},</td>
-                    <td>Offset: {{ error.1 }}</td>
-                    <td>{{ errMsg|key:error.2 }}{% if error.3 %}{{ error.3 }}{% endif %}</td>
+                    <td width="200">Line: {{ error.0 }},</td>
+                    <td width="200">Offset: {{ error.1 }}</td>
+                    <td width="500">{{ errMsg|key:error.2 }}{% if error.3 %}{{ error.3 }}{% endif %}</td>
                 </tr>
             {% endfor %}
             </table>
@@ -35,8 +35,8 @@
         {% if aliasDict %}
             <table>
                 <tr>
-                    <td>Alias Name</td>
-                    <td>Duplicated Times</td>
+                    <th width="200">Alias Name</th>
+                    <th width="200">Duplicated Times</th>
                 </tr>
             {% for alias, times in aliasDict.items %}
                 <tr>
@@ -52,10 +52,10 @@
         {% if aliasList %}
             <table>
                 <tr>
-                    <td>Alias Name</td>
-                    <td>Raw Link</td>
-                    <td>Conversion</td>
-                    <td>is Duplicated?</td>
+                    <th width="200">Alias Name</th>
+                    <th width="400">Raw Link</th>
+                    <th width="150">Conversion</th>
+                    <th width="150">is Duplicated?</th>
                 </tr>
             {% for aliasObj in aliasList %}
                 <tr>
