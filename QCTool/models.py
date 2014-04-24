@@ -67,8 +67,9 @@ class QCHTMLParser(HTMLParser):
         mdash = unicode("—", encoding="utf-8")
         lquo = unicode("‘", encoding="utf-8")
         ldquo = unicode("“", encoding="utf-8")
+        ellipsis = unicode("…", encoding="utf-8")
         #the characters will be put in to below list
-        self.specialCharList = [mdash, lquo, ldquo]
+        self.specialCharList = [mdash, lquo, ldquo, ellipsis]
 
     def run(self):
         self.check500Chars()

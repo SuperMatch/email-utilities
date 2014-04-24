@@ -35,13 +35,13 @@
         {% if aliasDict %}
             <table>
                 <tr>
-                    <th width="200">Alias Name</th>
-                    <th width="200">Duplicated Times</th>
+                    <th class="text-left" width="200">Alias Name</th>
+                    <th class="text-left" width="200">Duplicated Times</th>
                 </tr>
             {% for alias, times in aliasDict.items %}
                 <tr>
                     <td>{{ alias }}</td>
-                    <td>{{ times }}</td>
+                    <td {% if times > 1 %}style="background-color: #f04124; color: #ffffff;" {% endif %}>{{ times }}</td>
                 </tr>
             {% endfor %}
             </table>
@@ -52,17 +52,17 @@
         {% if aliasList %}
             <table>
                 <tr>
-                    <th width="200">Alias Name</th>
-                    <th width="400">Raw Link</th>
-                    <th width="150">Conversion</th>
-                    <th width="150">is Duplicated?</th>
+                    <th class="text-left" width="200">Alias Name</th>
+                    <th class="text-left" width="400">Raw Link</th>
+                    <th class="text-left" width="150">Conversion</th>
+                    <th class="text-left" width="150">is Duplicated?</th>
                 </tr>
             {% for aliasObj in aliasList %}
                 <tr>
                     <td>{{ aliasObj.0 }}</td>
                     <td>{{ aliasObj.1 }}</td>
-                    <td>{{ aliasObj.2 }}</td>
-                    <td>{{ aliasObj.3 }}</td>
+                    <td {% if aliasObj.2 == "True" %}style="background-color: #74bfdd; color: #000000;" {% elif aliasObj.2 == "False" %}style="background-color: #f08a24; color: #000000;" {% endif %}>{{ aliasObj.2 }}</td>
+                    <td {% if aliasObj.3 == "True" %}style="background-color: #f04124; color: #ffffff;" {% endif %}>{{ aliasObj.3 }}</td>
                 </tr>
             {% endfor %}
             </table>
