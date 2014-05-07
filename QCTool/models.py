@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from bs4 import UnicodeDammit #this is a python lib we should install called BeautifulSoup
+# from bs4 import UnicodeDammit #this is a python lib we should install called BeautifulSoup
 from HTMLParser import HTMLParser
 from urlparse import urlparse
 from htmlentitydefs import entitydefs
@@ -55,23 +55,26 @@ class QCHTMLParser(HTMLParser):
             "tel": 0,
             "conversion": 0,
         }
-        self.sline = ""
-        self.cid = ""
+        self.topamp = ""
+        self.headamp = ""
         #signal used for catching title data,
         #I'm still looking into this issue, because if title is null, handle data won't be called
         self.signals = {
             "title": 0, # 0=Unreached, 1=Reached, 2=DataFound
             "style-end": 0, # 0=Unreached, 1=Reached
+            "justStarted": 0, # 0=Unreached, 1=Reached
         }
         #below is the special characters used for matching
         mdash = unicode("—", encoding="utf-8")
         lquo = unicode("‘", encoding="utf-8")
         ldquo = unicode("“", encoding="utf-8")
+        ellipsis = unicode("…", encoding="utf-8")
         #the characters will be put in to below list
-        self.specialCharList = [mdash, lquo, ldquo]
+        self.specialCharList = [mdash, lquo, ldquo, ellipsis]
 
     def run(self):
         self.check500Chars()
+        self.get_amp()
         self.feed(self.source)
 
     #decode_html function is used for correct decode our html file
@@ -238,21 +241,37 @@ class QCHTMLParser(HTMLParser):
             self.hasSpecialChar(alt)
 
     #using re to grab the subjectline -- need further test
-    def get_sline(self, text):
-        regex = re.compile(r'set\s@subjectline\s?=\s?"([^"\\]*(?:\\.[^"\\]*)*)"', re.IGNORECASE)
-        match = regex.search(text)
-        if match:
-            return match.group(1)
-        else:
-            return match
-
-    def get_cid(self, text):
-        regex = re.compile(r'set\s@subjectline\s?=\s?concat\("([^"\\]*(?:\\.[^"\\]*)*)"', re.IGNORECASE)
-        match = regex.search(text)
-        if match:
-            return match.group(1)
-        else:
-            return match
+    # def get_sline(self, text):
+    #     regex = re.compile(r'set\s@subjectline\s?=\s?"([^"\\]*(?:\\.[^"\\]*)*)"', re.IGNORECASE)
+    #     match = regex.search(text)
+    #     if match:
+    #         return match.group(1)
+    #     else:
+    #         return match
+    #
+    # def get_cid(self, text):
+    #     regex = re.compile(r'set\s@subjectline\s?=\s?concat\("([^"\\]*(?:\\.[^"\\]*)*)"', re.IGNORECASE)
+    #     match = regex.search(text)
+    #     if match:
+    #         return match.group(1)
+    #     else:
+    #         return match
+    def get_amp(self):
+        top = re.compile(r'^(.|\s)*?<!DOCTYPE', re.IGNORECASE)
+        head_style = re.compile(r'</style>(.|\s)*?</head>', re.IGNORECASE)
+        top_match = top.search(self.source)
+        head_style_match = head_style.search(self.source)
+        regex = re.compile(r'%%\[(.|\s)*?\]%%')
+        if top_match:
+            top_result = regex.search(top_match.group(0))
+        if head_style_match:
+            head_style_result = regex.search(head_style_match.group(0))
+        if top_result:
+            self.topamp = top_result.group(0)
+            self.topamp = self.topamp.replace('\n', '<br />')
+        if head_style_result:
+            self.headamp = head_style_result.group(0)
+            self.headamp = self.headamp.replace('\n', '<br />')
 
     #while a tag detected, pass it to this method
     def aTagCheck(self, attrs):
@@ -296,18 +315,25 @@ class QCHTMLParser(HTMLParser):
             self.changeSignal("style-end", 0)
 
     def handle_data(self,data):
+        # if self.signals["justStarted"] == 0:
+        #     print data
+        #     self.signals["justStarted"] = 1;
+        #     amp = self.get_amp(data)
+        #     if amp:
+        #         amp = amp.replace(' ', '&nbsp;')
+        #         amp = amp.replace('\n', '<br />')
+        #         self.topamp = amp
         if self.signals["title"] == 1:
             self.changeSignal('title', 2)
         if data:
             self.hasSpecialChar(data)
-        if self.signals["style-end"] == 1:
-            #we can get the AMP Script
-            sline = self.get_sline(data)
-            cid = self.get_cid(data)
-            if cid:
-                self.cid = cid.strip('[')
-            if sline:
-                self.sline = sline
+        # if self.signals["style-end"] == 1:
+        #     #get amp script
+        #     amp = self.get_amp(data)
+        #     if amp:
+        #         amp = amp.replace(' ', '&nbsp;')
+        #         amp = amp.replace('\n', '<br />')
+        #         self.headamp = amp
 
     #handle_entityref is used for handling escaped character like &amp &reg
     #for now, if we missing semi-colon after the &amp or &reg etc. , we won't catch the missing semi-colon
@@ -323,12 +349,13 @@ class QCHTMLParser(HTMLParser):
     #get result for django
     def getResult(self):
         result = {
-            'cid': self.cid,
-            'sline': self.sline,
+            'topamp': self.topamp,
+            'headamp': self.headamp,
             'errorList': reversed(self.errors),
             'aliasDict': self.aliasDict,
             'aliasList': self.aliasList,
-            'errMsg': self.errMsg
+            'errMsg': self.errMsg,
+            'aCount': self.aCount,
         }
         return result
 
