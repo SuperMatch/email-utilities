@@ -4,16 +4,40 @@
     <title>Campaign Result {% if cid %}for {{ cid }}{% endif %}</title>
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/foundation.min.css' %}" />
+    <script src="{% static 'js/vendor/jquery.js' %}"></script>
+    <script>
+        $(function(){
+            $('.toggle').click(function(){
+                console.log('check now');
+                $(this).parents().siblings('.toggTarget').toggle();
+                return false;
+            });
+        });
+    </script>
 </head>
 <body>
-    <div class="row">
-        <h4>Campaign ID: {% if cid %}{{ cid }}{% else %}Not found{% endif %}</h4>
+    {% if topamp %}
+    <div class="row panel">
+        <h4>Top AMP Script: <a href="#" class="toggle">Expand/Hide</a></h4>
+        <div class="large-10 columns toggTarget">
+            {%  autoescape off %}
+            {{ topamp }}
+            {% endautoescape %}
+        </div>
     </div>
     <hr/>
-    <div class="row">
-        <h4>Subject: {% if cid %}{{ sline }}{% else %}Not found{% endif %}</h4>
+    {% endif %}
+    {% if headamp %}
+    <div class="row panel">
+        <h4>&lt;head&gt; AMP Script: <a href="#" class="toggle">Expand/Hide</a></h4>
+        <div class="large-10 columns toggTarget">
+            {% autoescape off %}
+            {{ headamp }}
+            {% endautoescape %}
+        </div>
     </div>
     <hr/>
+    {% endif %}
     <div class="row panel">
         <h4>Errors:</h4>
         {% if errorList %}
@@ -21,9 +45,9 @@
             {% load dict_extras %}
             {% for error in errorList %}
                 <tr>
-                    <td>Line: {{ error.0 }},</td>
-                    <td>Offset: {{ error.1 }}</td>
-                    <td>{{ errMsg|key:error.2 }}{% if error.3 %}{{ error.3 }}{% endif %}</td>
+                    <td width="200">Line: {{ error.0 }},</td>
+                    <td width="200">Offset: {{ error.1 }}</td>
+                    <td width="500">{{ errMsg|key:error.2 }}{% if error.3 %}{{ error.3 }}{% endif %}</td>
                 </tr>
             {% endfor %}
             </table>
@@ -31,17 +55,58 @@
     </div>
     <hr/>
     <div class="row panel">
+        <h4>Link Count:</h4>
+        {% if aCount %}
+            <table>
+                <tr>
+                    <td width="200">Plain Link (Alias + Mail + Tel)</td>
+                    {%  with total=aCount.alias|add:aCount.mail|add:aCount.tel %}
+                    <td width="200" {% if aCount.plain_link == total %}style="background-color: #43ac6a; color: #ffffff;"{% else %}style="background-color: #f04124; color: #ffffff;" {% endif %}>{{ aCount.plain_link }}</td>
+                    {% endwith %}
+                </tr>
+                <tr>
+                    <td width="200">Alias</td>
+                    <td width="200">{{ aCount.alias }}</td>
+                </tr>
+                <tr>
+                    <td width="200">Mail Link</td>
+                    <td width="200">{{ aCount.mail }}</td>
+                </tr>
+                <tr>
+                    <td width="200">Tel Link</td>
+                    <td width="200">{{ aCount.tel }}</td>
+                </tr>
+                <tr>
+                    <td width="200">Conversion</td>
+                    <td width="200">{{ aCount.conversion }}</td>
+                </tr>
+                <tr>
+                    <td width="200">View Email Link</td>
+                    <td width="200">{{ aCount.view_email }}</td>
+                </tr>
+                <tr>
+                    <td width="200">Empty Link</td>
+                    <td width="200" {% if aCount.empty_link > 1 %}style="background-color: #f04124; color: #ffffff;" {% endif %}>{{ aCount.empty_link }}</td>
+                </tr>
+                <tr>
+                    <td width="200">Empty Alias</td>
+                    <td width="200" {% if aCount.empty_alias > 1 %}style="background-color: #f04124; color: #ffffff;" {% endif %}>{{ aCount.empty_alias }}</td>
+                </tr>
+            </table>
+        {% endif %}
+    </div>
+    <div class="row panel">
         <h4>Alias Dict:</h4>
         {% if aliasDict %}
             <table>
                 <tr>
-                    <td>Alias Name</td>
-                    <td>Duplicated Times</td>
+                    <th class="text-left" width="200">Alias Name</th>
+                    <th class="text-left" width="200">Duplicated Times</th>
                 </tr>
             {% for alias, times in aliasDict.items %}
                 <tr>
                     <td>{{ alias }}</td>
-                    <td>{{ times }}</td>
+                    <td {% if times > 1 %}style="background-color: #f04124; color: #ffffff;" {% endif %}>{{ times }}</td>
                 </tr>
             {% endfor %}
             </table>
@@ -52,17 +117,17 @@
         {% if aliasList %}
             <table>
                 <tr>
-                    <td>Alias Name</td>
-                    <td>Raw Link</td>
-                    <td>Conversion</td>
-                    <td>is Duplicated?</td>
+                    <th class="text-left" width="200">Alias Name</th>
+                    <th class="text-left" width="400">Raw Link</th>
+                    <th class="text-left" width="150">Conversion</th>
+                    <th class="text-left" width="150">is Duplicated?</th>
                 </tr>
             {% for aliasObj in aliasList %}
                 <tr>
-                    <td>{{ aliasObj.0 }}</td>
+                    <td {% if aliasObj.0 == "None/Empty" %}style="background-color: #f04124; color: #ffffff;" {% endif %}>{{ aliasObj.0 }}</td>
                     <td>{{ aliasObj.1 }}</td>
-                    <td>{{ aliasObj.2 }}</td>
-                    <td>{{ aliasObj.3 }}</td>
+                    <td {% if aliasObj.2 == "True" %}style="background-color: #74bfdd; color: #000000;" {% elif aliasObj.2 == "False" %}style="background-color: #f08a24; color: #000000;" {% endif %}>{{ aliasObj.2 }}</td>
+                    <td {% if aliasObj.3 == "True" %}style="background-color: #f04124; color: #ffffff;" {% endif %}>{{ aliasObj.3 }}</td>
                 </tr>
             {% endfor %}
             </table>
