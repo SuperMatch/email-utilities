@@ -257,7 +257,9 @@ class QCHTMLParser(HTMLParser):
     #     else:
     #         return match
     def get_amp(self):
-        top = re.compile(r'^(.|\s)*?<!DOCTYPE', re.IGNORECASE)
+        top_result = ""
+        head_style_result = ""
+        top = re.compile(r'^\s*%%\[(.|\s)*<!DOCTYPE', re.IGNORECASE)
         head_style = re.compile(r'</style>(.|\s)*?</head>', re.IGNORECASE)
         top_match = top.search(self.source)
         head_style_match = head_style.search(self.source)
