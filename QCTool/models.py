@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from bs4 import UnicodeDammit #this is a python lib we should install called BeautifulSoup
+# from bs4 import UnicodeDammit #this is a python lib we should install called BeautifulSoup
 from HTMLParser import HTMLParser
 from urlparse import urlparse
 from htmlentitydefs import entitydefs
@@ -240,7 +240,7 @@ class QCHTMLParser(HTMLParser):
         if alt:
             self.hasSpecialChar(alt)
 
-    #using re to grab the subjectline -- need further test (removed)
+    #using re to grab the subjectline -- need further test
     # def get_sline(self, text):
     #     regex = re.compile(r'set\s@subjectline\s?=\s?"([^"\\]*(?:\\.[^"\\]*)*)"', re.IGNORECASE)
     #     match = regex.search(text)
@@ -248,9 +248,18 @@ class QCHTMLParser(HTMLParser):
     #         return match.group(1)
     #     else:
     #         return match
-
+    #
+    # def get_cid(self, text):
+    #     regex = re.compile(r'set\s@subjectline\s?=\s?concat\("([^"\\]*(?:\\.[^"\\]*)*)"', re.IGNORECASE)
+    #     match = regex.search(text)
+    #     if match:
+    #         return match.group(1)
+    #     else:
+    #         return match
     def get_amp(self):
-        top = re.compile(r'^(.|\s)*?<!DOCTYPE', re.IGNORECASE)
+        top_result = ""
+        head_style_result = ""
+        top = re.compile(r'%%\[(.|\s)*?<!DOCTYPE', re.IGNORECASE)
         head_style = re.compile(r'</style>(.|\s)*?</head>', re.IGNORECASE)
         top_match = top.search(self.source)
         head_style_match = head_style.search(self.source)
@@ -265,15 +274,6 @@ class QCHTMLParser(HTMLParser):
         if head_style_result:
             self.headamp = head_style_result.group(0)
             self.headamp = self.headamp.replace('\n', '<br />')
-
-    #removed due to complex amp script
-    # def get_cid(self, text):
-    #     regex = re.compile(r'set\s@subjectline\s?=\s?concat\("([^"\\]*(?:\\.[^"\\]*)*)"', re.IGNORECASE)
-    #     match = regex.search(text)
-    #     if match:
-    #         return match.group(1)
-    #     else:
-    #         return match
 
     #while a tag detected, pass it to this method
     def aTagCheck(self, attrs):
@@ -316,7 +316,7 @@ class QCHTMLParser(HTMLParser):
         if tag == "head":
             self.changeSignal("style-end", 0)
 
-    def handle_data(self, data):
+    def handle_data(self,data):
         # if self.signals["justStarted"] == 0:
         #     print data
         #     self.signals["justStarted"] = 1;
