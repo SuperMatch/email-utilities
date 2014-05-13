@@ -275,6 +275,24 @@ class QCHTMLParser(HTMLParser):
             self.headamp = head_style_result.group(0)
             self.headamp = self.headamp.replace('\n', '<br />')
 
+    def get_err_code(self):
+        source = self.source.split('\n')
+        tag = re.compile('.*<([a-z]+)([^<]+)*(?:>(.*)<\/\1>|\s+\/>)') #regular expression get html tag
+        for err in self.errors:
+            line = err[0] - 1
+            offset = err[1]
+            msg = err[2]
+            code = "Failed to get the code"
+            frag = source[line][offset:]
+            print msg
+            if msg != "over500":
+                match = tag.search(frag)
+                if match:
+                    code = match.group(0)
+            else:
+                code = "see comments"
+            err.append(code)
+
     #while a tag detected, pass it to this method
     def aTagCheck(self, attrs):
         link = None
@@ -350,6 +368,7 @@ class QCHTMLParser(HTMLParser):
 
     #get result for django
     def getResult(self):
+        self.get_err_code()
         result = {
             'topamp': self.topamp,
             'headamp': self.headamp,

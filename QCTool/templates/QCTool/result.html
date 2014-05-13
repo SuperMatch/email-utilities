@@ -45,9 +45,12 @@
             {% load dict_extras %}
             {% for error in errorList %}
                 <tr>
-                    <td width="200">Line: {{ error.0 }},</td>
-                    <td width="200">Offset: {{ error.1 }}</td>
-                    <td width="500">{{ errMsg|key:error.2 }}{% if error.3 %}{{ error.3 }}{% endif %}</td>
+                    <td width="50">HTML</td>
+                    <td width="1"></td>
+                    <td width="150">Line: {{ error.0 }}{% if error.2 != "over500" %},Offset: {{ error.1 }}{% endif %}</td>
+                    <td width="500">{{ error.4 }}</td>
+                    <td width="1"></td>
+                    <td width="200">{{ errMsg|key:error.2 }}{% if error.3 %}{{ error.3 }}{% endif %}</td>
                 </tr>
             {% endfor %}
             </table>
