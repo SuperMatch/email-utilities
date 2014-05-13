@@ -277,14 +277,14 @@ class QCHTMLParser(HTMLParser):
 
     def get_err_code(self):
         source = self.source.split('\n')
-        tag = re.compile('.*<([a-z]+)([^<]+)*(?:>(.*)<\/\1>|\s+\/>)') #regular expression get html tag
+        #regular expression get html tag need further modify
+        tag = re.compile('.*<([a-z]+)([^<]+)*(?:>(.*)<\/\1>|\s+\/>)')
         for err in self.errors:
             line = err[0] - 1
             offset = err[1]
             msg = err[2]
             code = "Failed to get the code"
             frag = source[line][offset:]
-            print msg
             if msg != "over500":
                 match = tag.search(frag)
                 if match:
