@@ -4,6 +4,7 @@
     <title>Campaign Result {% if cid %}for {{ cid }}{% endif %}</title>
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/foundation.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}"/>
     <script src="{% static 'js/vendor/jquery.js' %}"></script>
     <script>
         $(function(){
@@ -19,7 +20,7 @@
     {% if topamp %}
     <div class="row panel">
         <h4>Top AMP Script: <a href="#" class="toggle">Expand/Hide</a></h4>
-        <div class="large-10 columns toggTarget">
+        <div class="large-10 columns toggTarget word-break">
             {%  autoescape off %}
             {{ topamp }}
             {% endautoescape %}
@@ -30,7 +31,7 @@
     {% if headamp %}
     <div class="row panel">
         <h4>&lt;head&gt; AMP Script: <a href="#" class="toggle">Expand/Hide</a></h4>
-        <div class="large-10 columns toggTarget">
+        <div class="large-10 columns toggTarget word-break">
             {% autoescape off %}
             {{ headamp }}
             {% endautoescape %}
@@ -43,12 +44,31 @@
         {% if errorList %}
             <table>
             {% load dict_extras %}
+            {% load merge_string %}
             {% for error in errorList %}
                 <tr>
                     <td width="50">HTML</td>
                     <td width="1"></td>
                     <td width="150">Line: {{ error.0 }}{% if error.2 != "over500" %},Offset: {{ error.1 }}{% endif %}</td>
-                    <td width="500">{{ error.4 }}</td>
+                    <td width="500" class="word-break">
+{#                        {% if error.4 == "see comments" %}#}
+{#                            {{ error.4 }}#}
+{#                        {% else %}#}
+{#                            {% with a=":"|merge_str:error.1 %}#}
+{#                                {{ error.4|slice:a }}#}
+{#                            {% endwith %}#}
+{#                            {% with b=error.1 %}#}
+{#                                <span style="background-color: #cf2a0e;">{{ error.4|key:b }}</span>#}
+{#                            {% endwith %}#}
+{#                            {% with num=error.1|add:1 %}#}
+{#                            {% with c=num|merge_str:":" %}#}
+{#                                {{ error.4|slice:c }}#}
+{#                            {% endwith %}#}
+{#                            {% endwith %}#}
+{#                        {% endif %}#}
+                        {% if error.4 == "see comments" %}{{ error.4 }}{% else %}{% with a=":"|merge_str:error.1 %}{{ error.4|slice:a }}{% endwith %}{% with b=error.1 %}<span style="background-color: #ffff00; color: #cf2a0e;">{{ error.4|key:b }}</span>{% endwith %}{% with num=error.1|add:1 %}{% with c=num|merge_str:":" %}{{ error.4|slice:c }}{% endwith %}{% endwith %}
+                        {% endif %}
+                    </td>
                     <td width="1"></td>
                     <td width="200">{{ errMsg|key:error.2 }}{% if error.3 %}{{ error.3 }}{% endif %}</td>
                 </tr>

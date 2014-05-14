@@ -57,6 +57,8 @@ class QCHTMLParser(HTMLParser):
         }
         self.topamp = ""
         self.headamp = ""
+        #cache current line
+        self.cur_line = ""
         #signal used for catching title data,
         #I'm still looking into this issue, because if title is null, handle data won't be called
         self.signals = {
@@ -75,7 +77,12 @@ class QCHTMLParser(HTMLParser):
     def run(self):
         self.check500Chars()
         self.get_amp()
-        self.feed(self.source)
+        code = self.source.split('\n')
+        for c in code:
+            self.cur_line = c
+            for s in c:
+                self.feed(s)
+            self.feed('\n')
 
     #decode_html function is used for correct decode our html file
     #if the input is already unicode string, we don't have to use beautiful soup to decode the html
@@ -87,7 +94,11 @@ class QCHTMLParser(HTMLParser):
 
     #input error to the list, param "name" used to indicate the specific wrong attr
     def errInput(self, position, errMsg, name=None):
-        self.errors.append([position[0], position[1], errMsg, name])
+        if errMsg != "over500":
+            code = self.cur_line
+        else:
+            code = "see comments"
+        self.errors.append([position[0], position[1], errMsg, name, code])
 
     #if image don't have either width or height, or both are 0 then it will be reported
     #this may need further discussion, but now it is still working
@@ -275,23 +286,6 @@ class QCHTMLParser(HTMLParser):
             self.headamp = head_style_result.group(0)
             self.headamp = self.headamp.replace('\n', '<br />')
 
-    def get_err_code(self):
-        source = self.source.split('\n')
-        #regular expression get html tag need further modify
-        tag = re.compile('.*<([a-z]+)([^<]+)*(?:>(.*)<\/\1>|\s+\/>)')
-        for err in self.errors:
-            line = err[0] - 1
-            offset = err[1]
-            msg = err[2]
-            code = "Failed to get the code"
-            frag = source[line][offset:]
-            if msg != "over500":
-                match = tag.search(frag)
-                if match:
-                    code = match.group(0)
-            else:
-                code = "see comments"
-            err.append(code)
 
     #while a tag detected, pass it to this method
     def aTagCheck(self, attrs):
@@ -368,7 +362,6 @@ class QCHTMLParser(HTMLParser):
 
     #get result for django
     def getResult(self):
-        self.get_err_code()
         result = {
             'topamp': self.topamp,
             'headamp': self.headamp,
