@@ -51,21 +51,6 @@
                     <td width="1"></td>
                     <td width="150">Line: {{ error.0 }}{% if error.2 != "over500" %},Offset: {{ error.1 }}{% endif %}</td>
                     <td width="500" class="word-break">
-{#                        {% if error.4 == "see comments" %}#}
-{#                            {{ error.4 }}#}
-{#                        {% else %}#}
-{#                            {% with a=":"|merge_str:error.1 %}#}
-{#                                {{ error.4|slice:a }}#}
-{#                            {% endwith %}#}
-{#                            {% with b=error.1 %}#}
-{#                                <span style="background-color: #cf2a0e;">{{ error.4|key:b }}</span>#}
-{#                            {% endwith %}#}
-{#                            {% with num=error.1|add:1 %}#}
-{#                            {% with c=num|merge_str:":" %}#}
-{#                                {{ error.4|slice:c }}#}
-{#                            {% endwith %}#}
-{#                            {% endwith %}#}
-{#                        {% endif %}#}
                         {% if error.4 == "see comments" %}{{ error.4 }}{% else %}{% with a=":"|merge_str:error.1 %}{{ error.4|slice:a }}{% endwith %}{% with b=error.1 %}<span style="background-color: #ffff00; color: #cf2a0e;">{{ error.4|key:b }}</span>{% endwith %}{% with num=error.1|add:1 %}{% with c=num|merge_str:":" %}{{ error.4|slice:c }}{% endwith %}{% endwith %}
                         {% endif %}
                     </td>
