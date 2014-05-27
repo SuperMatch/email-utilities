@@ -2,13 +2,18 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-# from bs4 import UnicodeDammit #this is a python lib we should install called BeautifulSoup
 from HTMLParser import HTMLParser
 from urlparse import urlparse
 from htmlentitydefs import entitydefs
 import re, codecs
 
-#Beautiful Soup could be found here http://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-a-parser
+
+class QCError(models.Model):
+    line = models.IntegerField(max_length=10000)
+    offset = models.IntegerField(max_length=10000)
+    error_message = models.CharField(max_length=50)
+    attribute = models.CharField(max_length=20)
+    error_code = models.CharField(max_length=500)
 
 
 class QCHTMLParser(HTMLParser):
@@ -90,7 +95,7 @@ class QCHTMLParser(HTMLParser):
 
     #change the signal
     def changeSignal(self, target, number):
-        self.signals[target] = number;
+        self.signals[target] = number
 
     #input error to the list, param "name" used to indicate the specific wrong attr
     def errInput(self, position, errMsg, name=None):
@@ -221,7 +226,7 @@ class QCHTMLParser(HTMLParser):
                 self.aCount["empty_link"] += 1
         if len(alias) == 0 and scheme != "tel" and scheme != "mailto":
             self.errInput(self.getpos(), "noAttr", "alias")
-        elif len(alias)>0 and scheme != "tel" and scheme != "mailto":
+        elif len(alias) > 0 and scheme != "tel" and scheme != "mailto":
             self.aCount["alias"] += 1
         elif any(x == "" for x in alias):
             self.aCount["empty_alias"] += 1
