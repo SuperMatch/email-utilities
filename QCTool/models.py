@@ -42,7 +42,13 @@ class QCHTMLParser(HTMLParser):
             "wrongScheme": "Wrong scheme found in the link.",
         }
         #filter is used for some ET links
-        self.filter = ["%%view_email_url%%", "%%ftaf_url%%", "%%=GetSocialPublishURL(", "%%unsub_center_url%%"]
+        self.filter = [
+            "%%view_email_url%%",
+            "%%ftaf_url%%",
+            "%%=GetSocialPublishURL(",
+            "%%unsub_center_url%%",
+            "%%profile_center_url%%"
+        ]
         #alias dict is used for counting alias, Key=AliasName Value=Times
         self.aliasDict = {}
         #alias List is used for alias & rawlink pairs
