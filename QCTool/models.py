@@ -14,6 +14,9 @@ class QCError(models.Model):
     error_message = models.CharField(max_length=50)
     attribute = models.CharField(max_length=20)
     error_code = models.CharField(max_length=500)
+    campaign_name = models.CharField(max_length=20)
+    campaign_id = models.CharField(max_length=10)
+    version = models.IntegerField(max_length=100)
 
 
 class QCHTMLParser(HTMLParser):
@@ -215,10 +218,11 @@ class QCHTMLParser(HTMLParser):
     #count the number of the link
     #if we can't get an attr, we will get None
     def count(self, alias, link, conversion):
-        scheme = self.getUrlScheme(link)
+        scheme = "no href"
         if link is None:
             self.errInput(self.getpos(), "noAttr", "href")
         else:
+            scheme = self.getUrlScheme(link)
             self.aCount["plain_link"] += 1
             if link:
                 if scheme == "tel":
