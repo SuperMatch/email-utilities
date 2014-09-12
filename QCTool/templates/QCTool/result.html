@@ -9,7 +9,6 @@
     <script>
         $(function(){
             $('.toggle').click(function(){
-                console.log('check now');
                 $(this).parents().siblings('.toggTarget').toggle();
                 return false;
             });
@@ -17,6 +16,7 @@
     </script>
 </head>
 <body>
+<a id="openonly" href="#" target="_blank"></a>
     {% if topamp %}
     <div class="row panel">
         <h4>Top AMP Script: <a href="#" class="toggle">Expand/Hide</a></h4>
@@ -133,7 +133,7 @@
             {% for aliasObj in aliasList %}
                 <tr>
                     <td {% if aliasObj.0 == "None/Empty" %}style="background-color: #f04124; color: #ffffff;" {% endif %}>{{ aliasObj.0 }}</td>
-                    <td>{{ aliasObj.1 }}</td>
+                    <td><a href="{{ aliasObj.1 }}" target="_blank">{{ aliasObj.1 }}</a></td>
                     <td {% if aliasObj.2 == "True" %}style="background-color: #74bfdd; color: #000000;" {% elif aliasObj.2 == "False" %}style="background-color: #f08a24; color: #000000;" {% endif %}>{{ aliasObj.2 }}</td>
                     <td {% if aliasObj.3 == "True" %}style="background-color: #f04124; color: #ffffff;" {% endif %}>{{ aliasObj.3 }}</td>
                 </tr>
