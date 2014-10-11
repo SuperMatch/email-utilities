@@ -127,11 +127,12 @@ class QCHTMLParser(HTMLParser):
     def isAliasDuplicated(self, alias):
         bObj = False
         for item in alias:
-            if self.aliasDict.has_key(item):
-                self.aliasDict[item] += 1
+            lower_item = item.lower()
+            if self.aliasDict.has_key(lower_item):
+                self.aliasDict[lower_item] += 1
                 bObj = True
             else:
-                self.aliasDict[item] = 1
+                self.aliasDict[lower_item] = 1
         return bObj
 
     #the logic is a little confused but it use "urlparse", so check the document
