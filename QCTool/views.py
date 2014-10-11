@@ -19,3 +19,6 @@ def result(request):
     bot.run()
     result_obj = bot.getResult()
     return render(request, 'QCTool/result.html', result_obj)
+
+def litmusHelper(request):
+    return render(request, 'QCTool/litmusHelper.html')
