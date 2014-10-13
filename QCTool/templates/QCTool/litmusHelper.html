@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="">
+<html>
 <head>
     <title>Litmus Helper</title>
     {% load staticfiles %}
@@ -9,97 +9,27 @@
     <script src="{% static 'js/litmusHelper.js' %}"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="row"><div class="col-lg-8"><h2>Input the link of your render test&nbsp;&nbsp;<small>&mdash;Not the published one</small></h2></div></div>
+    <div class="container" ng-app="Linker">
+        <div class="row"><div class="col-lg-8"><h2>Input the link of your render test&nbsp;&nbsp;<small>(Not the published one)</small></h2></div></div>
         <div class="row">
             <div class="col-lg-12">
-                <form role="form">
-                    <div class="form-group">
-                    <label for="Link">Link:</label>
-                    <input type="text" class="form-control" id="inputLink" placeholder="Enter link">
+                <form role="form" class="form-horizontal">
+                    <div class="form-group" ng-controller="linkInput">
+                        <label for="Link" class="col-lg-1">Link here:</label>
+
+                        <div class="col-lg-11">
+                            <input type="text" class="form-control" id="inputLink" placeholder="Enter link" ng-model="data.litmusURL" ng-change="change()">
+                            <p class="bg-danger {$data.warningDisplay$}" style="margin-top: 10px; padding: 5px;">Invalid link. Please input your link.</p></div>
                     </div>
                 </form>
             </div>
         </div>
         <div class="row">
             <div class="col-lg-12">
-                <dl class="dl-horizontal">
-                    <dt>Apple Mail 6</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Lotus Notes 6.5</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Lotus Notes 7</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Lotus Notes 8</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Lotus Notes 8.5</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Outlook 2000</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Outlook 2002</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Outlook 2003</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Outlook 2007</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Outlook 2010</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Outlook 2011</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Outlook 2013</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Thunderbird latest</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Android 2.3</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Android 4.2</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Gmail App (Android)</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Black Berry 4 OS</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Black Berry 5 OS</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>iPhone 5s</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>iPad (Retina)</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>iPad Mini</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>iPhone 4s</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>iPhone 5</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>iPhone 6</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>iPhone 6 Plus</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Windows Phone 8</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>AOL Mail (Explorer)</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>AOL Mail (Firefox)</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>AOL Mail (Chrome)</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Gmail (Explorer)</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Gmail (Firefox)</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Gmail (Chrome)</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Outlook.com (Explorer)</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Outlook.com (Firefox)</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Outlook.com (Chrome)</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Yahoo! Mail (Explorer)</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Yahoo! Mail (Firefox)</dt>
-                    <dd><a href="{$link$}"></a></dd>
-                    <dt>Yahoo! Mail (Chrome)</dt>
-                    <dd><a href="{$link$}"></a></dd>
+                <dl class="dl-horizontal {$data.listDisplay$}" ng-controller="renderLink">
+                    <div ng-repeat="device in config">
+                        <dt>{$device.name$}</dt><dd><a href='{$renderLink(device)$}'>{$renderLink(device)$}</a></dd>
+                    </div>
                 </dl>
             </div>
         </div>
