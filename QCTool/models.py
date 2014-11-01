@@ -41,7 +41,6 @@ class QCHTMLParser(HTMLParser):
             "wrongConv": "Conversion detected but value invalided.",
             "wrongEntity": "Wrong escaped character found",
             "duplicatedAlias": "Found alias duplicated with former alias",
-            "over500": "line over 500",
             "wrongScheme": "Wrong scheme found in the link.",
         }
         #filter is used for some ET links
@@ -89,7 +88,6 @@ class QCHTMLParser(HTMLParser):
         self.specialCharList = [mdash, lquo, ldquo, ellipsis]
 
     def run(self):
-        self.check500Chars()
         self.get_amp()
         code = self.source.split('\n')
         for c in code:
@@ -244,12 +242,6 @@ class QCHTMLParser(HTMLParser):
             self.errInput(self.getpos(), "emptyValue", "alias")
         if conversion or conversion == "":
             self.aCount["conversion"] += 1
-
-    def check500Chars(self):
-        source = self.source.split('\n')
-        for lineno, line in enumerate(source):
-            if len(line)>500:
-                self.errInput([lineno, 0], "over500")
 
     #while img tag detected, pass it to this method
     def imageCheck(self, attrs):
