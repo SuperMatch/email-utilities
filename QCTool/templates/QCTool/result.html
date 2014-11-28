@@ -17,23 +17,12 @@
 </head>
 <body>
 <a id="openonly" href="#" target="_blank"></a>
-    {% if topamp %}
+    {% if amp %}
     <div class="row panel">
-        <h4>Top AMP Script: <a href="#" class="toggle">Expand/Hide</a></h4>
-        <div class="large-10 columns toggTarget word-break">
-            {%  autoescape off %}
-            {{ topamp }}
-            {% endautoescape %}
-        </div>
-    </div>
-    <hr/>
-    {% endif %}
-    {% if headamp %}
-    <div class="row panel">
-        <h4>&lt;head&gt; AMP Script: <a href="#" class="toggle">Expand/Hide</a></h4>
+        <h4>AMP Script: <a href="#" class="toggle">Expand/Hide</a></h4>
         <div class="large-10 columns toggTarget word-break">
             {% autoescape off %}
-            {{ headamp }}
+            {{ amp }}
             {% endautoescape %}
         </div>
     </div>

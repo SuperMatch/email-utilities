@@ -22,6 +22,7 @@ class QCError(models.Model):
 class QCHTMLParser(HTMLParser):
     def __init__(self, data):
         HTMLParser.__init__(self)
+        self.originalSource = data
         self.source = data
         self.errMsg = {
             #dictionary for errors. Output method will use the "key" to get the "value" to output the error.
@@ -49,7 +50,8 @@ class QCHTMLParser(HTMLParser):
             "%%ftaf_url%%",
             "%%=GetSocialPublishURL(",
             "%%unsub_center_url%%",
-            "%%profile_center_url%%"
+            "%%profile_center_url%%",
+            "%%=redirectto("
         ]
         #alias dict is used for counting alias, Key=AliasName Value=Times
         self.aliasDict = {}
@@ -68,8 +70,7 @@ class QCHTMLParser(HTMLParser):
             "tel": 0,
             "conversion": 0,
         }
-        self.topamp = ""
-        self.headamp = ""
+        self.amp = ""
         #cache current line
         self.cur_line = ""
         #signal used for catching title data,
@@ -135,7 +136,7 @@ class QCHTMLParser(HTMLParser):
 
     #the logic is a little confused but it use "urlparse", so check the document
     def urlValidation(self, url):
-        if any(url.startswith(x) for x in self.filter):
+        if any(url.lower().startswith(x.lower()) for x in self.filter):
             return
         if "replace" in url.lower():
             self.errInput(self.getpos(), "replaceLink")
@@ -186,8 +187,14 @@ class QCHTMLParser(HTMLParser):
 
     #check if has special char
     def hasSpecialChar(self, content):
-        if any(x in content for x in self.specialCharList):
+        regex = re.compile(r'^[^\x20-\x7E\n\s\r]+$', re.IGNORECASE)
+        match = regex.search(content)
+        if match:
             self.errInput(self.getpos(), "specialChar")
+        else:
+            return
+        # if any(x in content for x in self.specialCharList):
+        #     self.errInput(self.getpos(), "specialChar")
 
     #only equal true then it will pass the validation
     def convValidation(self, value):
@@ -276,23 +283,12 @@ class QCHTMLParser(HTMLParser):
     #     else:
     #         return match
     def get_amp(self):
-        top_result = ""
-        head_style_result = ""
-        top = re.compile(r'^[\s\S]*?(?=<!DOCTYPE)', re.IGNORECASE)
-        head_style = re.compile(r'</style>[\s\S]*?</head>', re.IGNORECASE)
-        top_match = top.search(self.source)
-        head_style_match = head_style.search(self.source)
-        regex = re.compile(r'%%\[[\s\S]*?\]%%')
-        if top_match:
-            top_result = regex.search(top_match.group(0))
-        if head_style_match:
-            head_style_result = regex.search(head_style_match.group(0))
-        if top_result:
-            self.topamp = top_result.group(0)
-            self.topamp = self.topamp.replace('\n', '<br />')
-        if head_style_result:
-            self.headamp = head_style_result.group(0)
-            self.headamp = self.headamp.replace('\n', '<br />')
+        amp = re.compile(r'^([\s\S]*?)%%\[([\s\S]*?)\]%%([\s\S]*?)</head>')
+        amp_match = amp.search(self.source)
+        if amp_match:
+            self.amp = amp_match.group(2)
+            self.source = self.source.replace(self.amp, "")
+            self.amp = self.amp.replace('\n', '<br />')
 
 
     #while a tag detected, pass it to this method
@@ -371,8 +367,7 @@ class QCHTMLParser(HTMLParser):
     #get result for django
     def getResult(self):
         result = {
-            'topamp': self.topamp,
-            'headamp': self.headamp,
+            'amp': self.amp,
             'errorList': reversed(self.errors),
             'aliasDict': self.aliasDict,
             'aliasList': self.aliasList,
