@@ -77,8 +77,6 @@ class QCHTMLParser(HTMLParser):
         #I'm still looking into this issue, because if title is null, handle data won't be called
         self.signals = {
             "title": 0, # 0=Unreached, 1=Reached, 2=DataFound
-            "style-end": 0, # 0=Unreached, 1=Reached
-            "justStarted": 0, # 0=Unreached, 1=Reached
         }
         #below is the special characters used for matching
         mdash = unicode("—", encoding="utf-8")
@@ -287,7 +285,8 @@ class QCHTMLParser(HTMLParser):
         amp_match = amp.search(self.source)
         if amp_match:
             self.amp = amp_match.group(2)
-            self.source = self.source.replace(self.amp, "")
+            count = self.amp.count("\n")
+            self.source = self.source.replace(self.amp, "\n"*count)
             self.amp = self.amp.replace('\n', '<br />')
 
 
@@ -327,31 +326,12 @@ class QCHTMLParser(HTMLParser):
                 #if not 2, means not data found. So report error
                 self.errInput(self.getpos(), "emptyValue", "title")
             self.changeSignal("title", 0)
-        if tag == "style":
-            self.changeSignal("style-end", 1)
-        if tag == "head":
-            self.changeSignal("style-end", 0)
 
     def handle_data(self,data):
-        # if self.signals["justStarted"] == 0:
-        #     print data
-        #     self.signals["justStarted"] = 1;
-        #     amp = self.get_amp(data)
-        #     if amp:
-        #         amp = amp.replace(' ', '&nbsp;')
-        #         amp = amp.replace('\n', '<br />')
-        #         self.topamp = amp
         if self.signals["title"] == 1:
             self.changeSignal('title', 2)
         if data:
             self.hasSpecialChar(data)
-        # if self.signals["style-end"] == 1:
-        #     #get amp script
-        #     amp = self.get_amp(data)
-        #     if amp:
-        #         amp = amp.replace(' ', '&nbsp;')
-        #         amp = amp.replace('\n', '<br />')
-        #         self.headamp = amp
 
     #handle_entityref is used for handling escaped character like &amp &reg
     #for now, if we missing semi-colon after the &amp or &reg etc. , we won't catch the missing semi-colon
