@@ -29,7 +29,7 @@ class QCHTMLParser(HTMLParser):
             "invalidImage": "The dimension of the image is invalided.",
             "replaceLink": "Word \"replace\" found in link.",
             "tbd": "Word \"tbd\" found in link.",
-            "spaceLink": "Space found before http.",
+            "spaceLink": "Space found in the URL.",
             "noDotCom": "Can't find .com in the url host.",
             "doubleHttp": "Found http twice in the url.",
             "wrongUrlQuery": "? and & symbol found with wrong order in URL.",
@@ -43,6 +43,7 @@ class QCHTMLParser(HTMLParser):
             "wrongEntity": "Wrong escaped character found",
             "duplicatedAlias": "Found alias duplicated with former alias",
             "wrongScheme": "Wrong scheme found in the link.",
+            "pureBlack": "#000000 found in the style",
         }
         #filter is used for some ET links
         self.filter = [
@@ -104,12 +105,12 @@ class QCHTMLParser(HTMLParser):
         self.signals[target] = number
 
     #input error to the list, param "name" used to indicate the specific wrong attr
-    def errInput(self, position, errMsg, name=None):
+    def errInput(self, position, errMsg, name=None, attr=None):
         if errMsg != "over500":
             code = self.cur_line
         else:
             code = "see comments"
-        self.errors.append([position[0], position[1], errMsg, name, code])
+        self.errors.append([position[0], position[1], errMsg, name, code, attr])
 
     #if image don't have either width or height, or both are 0 then it will be reported
     #this may need further discussion, but now it is still working
@@ -134,6 +135,8 @@ class QCHTMLParser(HTMLParser):
 
     #the logic is a little confused but it use "urlparse", so check the document
     def urlValidation(self, url):
+        if " " in url:
+            self.errInput(self.getpos(), "spaceLink")
         if any(url.lower().startswith(x.lower()) for x in self.filter):
             return
         if "replace" in url.lower():
@@ -181,7 +184,7 @@ class QCHTMLParser(HTMLParser):
     def hasReturn(self, alias):
         for item in alias:
             if "\n" in item:
-                self.errInput(self.getpos(), "returnInAlias")
+                self.errInput(self.getpos(), "returnInAlias", attr=item)
 
     #check if has special char
     def hasSpecialChar(self, content):
@@ -311,6 +314,13 @@ class QCHTMLParser(HTMLParser):
         if len(alias) != 0:
             self.hasReturn(alias)
 
+    #detect style tag and check #000000 in it
+    def styleCheck(self, attrs):
+        for x in attrs:
+            if x[0].lower() == "style":
+                if "#000000" in x[1]:
+                    self.errInput(self.getpos(), "pureBlack")
+
     #handle_xxxxx overwrite the blank method in the HTMLParser
     def handle_starttag(self, tag, attrs):
         if tag == "img":
@@ -319,6 +329,7 @@ class QCHTMLParser(HTMLParser):
             self.aTagCheck(attrs)
         elif tag == "title":
             self.changeSignal("title", 1)
+        self.styleCheck(attrs)
 
     def handle_endtag(self, tag):
         if tag == "title":
