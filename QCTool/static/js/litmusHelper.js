@@ -32,7 +32,7 @@ linker.factory('Data', function () {
         },
         {
             name: "IBM Notes 9",
-            suffix: "note9"
+            suffix: "notes9"
         },
         {
             name: "Outlook 2000",
