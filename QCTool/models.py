@@ -105,12 +105,23 @@ class QCHTMLParser(HTMLParser):
         self.signals[target] = number
 
     #input error to the list, param "name" used to indicate the specific wrong attr
-    def errInput(self, position, errMsg, name=None, attr=None):
+    def errInput(self, position, errMsg, name=None, attr=None, code=None):
         if errMsg != "over500":
-            code = self.cur_line
+            if code is None:
+                code = self.cur_line
         else:
             code = "see comments"
-        self.errors.append([position[0], position[1], errMsg, name, code, attr])
+        inputSignal = True
+        if errMsg == "specialChar":
+            slineRE = re.compile(r'set\s@subjectline\s?=', re.IGNORECASE)
+            match = slineRE.search(code)
+            if match is not None:
+                inputSignal = False
+        if errMsg == "wrongEntity":
+            if self.ampPos[0] < position[0] < self.ampPos[1]:
+                inputSignal = False
+        if inputSignal:
+            self.errors.append([position[0], position[1], errMsg, name, code, attr])
 
     #if image don't have either width or height, or both are 0 then it will be reported
     #this may need further discussion, but now it is still working
@@ -187,15 +198,19 @@ class QCHTMLParser(HTMLParser):
                 self.errInput(self.getpos(), "returnInAlias", attr=item)
 
     #check if has special char
-    def hasSpecialChar(self, content):
+    def hasSpecialChar(self, content, pos=None, code=None):
         regex = re.compile(r'^[^\x20-\x7E\n\s\r]+$', re.IGNORECASE)
         match = regex.search(content)
         if match:
-            self.errInput(self.getpos(), "specialChar")
+            if pos:
+                #this condition is only for handle_comment, data in handle_comment will be a code block, we enumurate the data and feed by character,
+                # so we provide customized position
+                # and specific code line
+                self.errInput(pos, "specialChar", code=code)
+            else:
+                self.errInput(self.getpos(), "specialChar")
         else:
             return
-        # if any(x in content for x in self.specialCharList):
-        #     self.errInput(self.getpos(), "specialChar")
 
     #only equal true then it will pass the validation
     def convValidation(self, value):
@@ -283,13 +298,16 @@ class QCHTMLParser(HTMLParser):
     #         return match.group(1)
     #     else:
     #         return match
+
     def get_amp(self):
         amp = re.compile(r'^([\s\S]*?)%%\[([\s\S]*?)\]%%([\s\S]*?)</head>')
         amp_match = amp.search(self.source)
         if amp_match:
+            beforeAMP = amp_match.group(1)
+            ampstart = beforeAMP.count('\n') + 1
             self.amp = amp_match.group(2)
-            count = self.amp.count("\n")
-            self.source = self.source.replace(self.amp, "\n"*count)
+            ampend = self.amp.count('\n') + ampstart
+            self.ampPos = [ampstart, ampend]
             self.amp = self.amp.replace('\n', '<br />')
 
 
@@ -343,6 +361,14 @@ class QCHTMLParser(HTMLParser):
             self.changeSignal('title', 2)
         if data:
             self.hasSpecialChar(data)
+
+    def handle_comment(self, data):
+        currentLine = self.getpos()[0]
+        if data:
+            data = data.split("\n")
+            for lineNum, line in enumerate(data):
+                for offset, char1 in enumerate(line):
+                    self.hasSpecialChar(char1, [lineNum + currentLine, offset], line)
 
     #handle_entityref is used for handling escaped character like &amp &reg
     #for now, if we missing semi-colon after the &amp or &reg etc. , we won't catch the missing semi-colon
