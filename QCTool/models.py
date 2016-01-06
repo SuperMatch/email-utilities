@@ -113,7 +113,7 @@ class QCHTMLParser(HTMLParser):
             code = "see comments"
         inputSignal = True
         if errMsg == "specialChar":
-            slineRE = re.compile(r'set\s@subjectline\s?=', re.IGNORECASE)
+            slineRE = re.compile(r'(set\s@subjectline\s?=)|(set\s@sline\w?\s?=)', re.IGNORECASE)
             match = slineRE.search(code)
             if match is not None:
                 inputSignal = False
