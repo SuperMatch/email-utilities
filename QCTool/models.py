@@ -44,6 +44,7 @@ class QCHTMLParser(HTMLParser):
             "duplicatedAlias": "Found alias duplicated with former alias",
             "wrongScheme": "Wrong scheme found in the link.",
             "pureBlack": "#000000 found in the style",
+            "returnInLink": "Found return symbol in link.",
         }
         #filter is used for some ET links
         self.filter = [
@@ -72,8 +73,7 @@ class QCHTMLParser(HTMLParser):
             "conversion": 0,
         }
         self.amp = ""
-        #cache current line
-        self.cur_line = ""
+        self.code = []
         #signal used for catching title data,
         #I'm still looking into this issue, because if title is null, handle data won't be called
         self.signals = {
@@ -90,8 +90,8 @@ class QCHTMLParser(HTMLParser):
     def run(self):
         self.get_amp()
         code = self.source.split('\n')
+        self.code = code
         for c in code:
-            self.cur_line = c
             for s in c:
                 self.feed(s)
             self.feed('\n')
@@ -108,7 +108,7 @@ class QCHTMLParser(HTMLParser):
     def errInput(self, position, errMsg, name=None, attr=None, code=None):
         if errMsg != "over500":
             if code is None:
-                code = self.cur_line
+                code = self.code[position[0]-1] #minus 1 is because array starts from 0 while the position starts from 1
         else:
             code = "see comments"
         inputSignal = True
@@ -154,6 +154,8 @@ class QCHTMLParser(HTMLParser):
             self.errInput(self.getpos(), "replaceLink")
         elif "TBD" in url.upper():
             self.errInput(self.getpos(), "tbd")
+        elif "\n" in url.lower():
+            self.errInput(self.getpos(), "returnInLink")
         else:
             purl = urlparse(url)
             if purl.scheme == "" and purl.netloc == "":
@@ -393,49 +395,3 @@ class QCHTMLParser(HTMLParser):
         }
         return result
 
-    #output all the errors
-    def outputToFile(self, filename):
-        filename = self.cid + filename
-        outFile = codecs.open(filename, "w", "utf-8")
-        #output the sline
-        outFile.write("\n"*2 + "The subjectline in AMPScript is:\n")
-        outFile.write("*"*50 + "\n"*2)
-        outFile.write(self.sline + "\n"*2)
-        outFile.write("*"*50 + "\n"*2)
-        #output the error pool
-        outFile.write("\n"*2 + "*"*50 + "\n"*2)
-        outFile.write("Outputting Errors......\n\n")
-        outFile.write("*"*50 + "\n"*2)
-        for error in reversed(self.errors):
-            if not error[-1]:
-                error[-1] = ""
-            outputStr = "Line: " + str(error[0]) + " Offset: " + str(error[1]) + " Error Message: " + self.errMsg[error[2]] + error[3] + "\n"
-            outFile.write(outputStr)
-        # output the alias counting problems
-        outputStr = ""
-        duplicatedones = []
-        for key in self.aliasDict:
-            outputStr += str(key) + "\t" + str(self.aliasDict[key]) + "\n"
-            if self.aliasDict[key] >1:
-                duplicatedones.append(str(key))
-        outFile.write("\n"*2 + "*"*50 + "\n"*2)
-        outFile.write("Outputting Alias Duplicated times, if number equals 1, then means it's not duplicated.\n\n")
-        outFile.write("*"*50 + "\n"*2)
-        outFile.write("Following alias are duplicated. \n" + "\n".join(duplicatedones) + "\n"*2)
-        outFile.write("Alias Name\tAppear times\n")
-        outFile.write(outputStr + "\n")
-        # output the count pool
-        outFile.write("\n"*2 + "*"*50 + "\n"*2)
-        outFile.write("Outputting the counts of the a tags\n\n")
-        outFile.write("*"*50 + "\n"*2)
-        for key in self.aCount:
-            outFile.write(str(key) + " : " + str(self.aCount[key]) + "\n")
-        # output the alias rawlink pairs
-        outFile.write("\n"*2 + "*"*50 + "\n"*2)
-        outFile.write("Outputting Alias , Rawlinks combination...\n\n")
-        outFile.write("*"*50 + "\n"*2)
-        outFile.write("Alias Name\tRaw Links\tConversion\tisDuplicated\n\n")
-        for alias in self.aliasList:
-            outputStr = "\t".join(alias) + "\n"
-            outFile.write(outputStr)
-        outFile.close()
